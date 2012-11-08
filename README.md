@@ -35,7 +35,6 @@ Or install it yourself as:
     <source>                                                          
       type snmp                                                         
       tag snmp.server2                                                  
-      nodes name, value                                                 
       host server2                                                    
       community private                                                 
       version 2c                                                        
@@ -46,6 +45,11 @@ Or install it yourself as:
       timeout 3s                                                        
       polling_time 5,15,25,35,45,55                                     
     </source>                                                         
+
+
+     2012-11-08 16:07:40 +0900 snmp.server1: {"name":"HOST-RESOURCES-MIB::hrStorageUsed.31","value":"2352425"}         
+     2012-11-08 16:07:40 +0900 snmp.server2: {"value":"[name=HOST-RESOURCES-MIB::hrStorageIndex.7, value=7 (INTEGER)]"}  
+
 
 ## Copyright
 Copyright (c) 2012 Internet Initiative Inc.

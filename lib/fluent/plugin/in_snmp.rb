@@ -131,7 +131,7 @@ module Fluent
         record = Hash.new
         row.each do |vb|
           if nodes.nil?
-            record["mib"] = vb
+            record["value"] = vb
           else
             nodes.each{|param| record[param] = check_type(vb.__send__(param))}
           end
