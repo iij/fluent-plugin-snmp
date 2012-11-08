@@ -1,0 +1,43 @@
+GIT
+  remote: https://github.com/iij/polling.git
+  revision: c6fd0c024ef45dd1cf0014efb7093f9865b98420
+  specs:
+    polling (0.0.1)
+
+PATH
+  remote: .
+  specs:
+    fluent-plugin-snmp (0.0.1)
+      fluentd
+      snmp
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    cool.io (1.1.0)
+      iobuffer (>= 1.0.0)
+    fluentd (0.10.28)
+      cool.io (~> 1.1.0)
+      http_parser.rb (~> 0.5.1)
+      json (>= 1.4.3)
+      msgpack (~> 0.4.4)
+      yajl-ruby (~> 1.0)
+    http_parser.rb (0.5.3)
+    iobuffer (1.1.2)
+    json (1.7.5)
+    metaclass (0.0.1)
+    mocha (0.12.7)
+      metaclass (~> 0.0.1)
+    msgpack (0.4.7)
+    snmp (1.1.0)
+    yajl-ruby (1.1.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  fluent-plugin-snmp!
+  fluentd
+  mocha
+  polling!
+  snmp

@@ -103,7 +103,7 @@ module Fluent
     end
 
     def run
-      Polling::run(@polling_time,true) do
+      Polling::run(@polling_time) do
         snmpwalk(@manager, @mib, @nodes)
         break if @end_flag
       end
