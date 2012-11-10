@@ -3,7 +3,7 @@ $:.push File.expand_path("../lib", __FILE__)
 
 Gem::Specification.new do |gem|
   gem.name          = "fluent-plugin-snmp"
-  gem.version       = "0.0.1"
+  gem.version       = "0.0.2"
   gem.authors       = ["Hiroshi Sugimoto"]
   gem.email         = ["h-sugimoto@iij.ad.jp"]
   gem.description   = %q{Input plugin to walk snmp}
