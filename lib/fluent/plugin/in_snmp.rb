@@ -86,6 +86,8 @@ module Fluent
         :mib_modules     => @mib_modules,
         :use_IPv6        => @use_IPv6
       }
+
+      @retry_conut = 0
     end
 
     def starter
@@ -107,10 +109,14 @@ module Fluent
         snmpwalk(@manager, @mib, @nodes)
         break if @end_flag
       end
+    rescue TypeError => ex
+      $log.error "run TypeError", :error=>ex.message
+      exit
     rescue => ex
       $log.error "run failed", :error=>ex.message
       sleep(10)
-      retry
+      @retry_conut += 1
+      retry if @retry_conut < 30
     end
 
     #Ctrl-cで処理を停止時に呼ばれる
