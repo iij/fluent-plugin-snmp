@@ -1,5 +1,5 @@
 require 'snmp' # http://snmplib.rubyforge.org/doc/index.html
-require 'polling' # https://github.com/iij/polling.git
+require 'polling'
 
 module Fluent
   class SnmpInput < Input

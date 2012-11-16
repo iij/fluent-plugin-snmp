@@ -1,16 +1,12 @@
 # Fluent::Plugin::Snmp
 
-Fluent plugin from snmp
+Fluentd snmp input plugin
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
     gem 'fluent-plugin-snmp'
-
-And then execute:
-
-    $ bundle
 
 Or install it yourself as:
 
