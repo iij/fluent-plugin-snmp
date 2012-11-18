@@ -64,7 +64,7 @@ module Fluent
       @nodes = @nodes.split(',').map{|str| str.strip} unless @nodes.nil?
       raise ConfigError, "snmp: 'nodes' parameter is required on snmp input" if !@nodes.nil? && @nodes.empty?
 
-      @polling_time = @polling_time.split(',').map{|str| str.strip.to_i} unless @polling_time.nil?
+      @polling_time = @polling_time.split(',').map{|str| str.strip} unless @polling_time.nil?
       raise ConfigError, "snmp: 'polling_time' parameter is required on snmp input" if !@polling_time.nil? && @polling_time.empty?
 
       # snmp version

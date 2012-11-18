@@ -25,6 +25,19 @@ timeout 3s
 polling_time 5,15,25,35,45,55
 </source>
 
+<source>
+type snmp
+tag snmp.server3
+host localhost
+community private
+version 2c
+mib hrStorageIndex, hrStorageDescr, hrStorageSize, hrStorageUsed
+mib_modules HOST-RESOURCES-MIB
+retries 0
+timeout 3s
+polling_time 5m
+</source>
+
 <match snmp.server*>
   type stdout
 </match>

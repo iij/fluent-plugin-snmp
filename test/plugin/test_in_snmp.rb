@@ -1,5 +1,5 @@
 require 'helper'
-require 'mocha'
+require 'mocha/setup'
 require 'time'
 
 class SnmpInputTest < Test::Unit::TestCase
@@ -32,7 +32,7 @@ class SnmpInputTest < Test::Unit::TestCase
     assert_equal "snmp.server1", d.instance.tag
     assert_equal ["hrStorageIndex","hrStorageDescr","hrStorageSize","hrStorageUsed"], d.instance.mib
     assert_equal ["name","value"], d.instance.nodes
-    assert_equal [0,10,20,30,40,50], d.instance.polling_time
+    assert_equal ["0","10","20","30","40","50"], d.instance.polling_time
 
     # SNMP Lib Params
     assert_equal "localhost", d.instance.host
