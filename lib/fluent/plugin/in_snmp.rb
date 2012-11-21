@@ -45,10 +45,6 @@ module Fluent
     config_param :mib_modules, :string, :default => nil
     config_param :use_IPv6, :string, :default => nil
 
-    def initialize
-      super
-    end  
-
     def configure(conf)                                                         
       super
 
@@ -130,7 +126,7 @@ module Fluent
 
     private
 
-    def snmpwalk(manager, mib, nodes = nil, test = false)
+    def snmpwalk(manager, mib, nodes, test=false)
       manager.walk(mib) do |row|
         time = Engine.now 
         time = time - time % 5
@@ -145,6 +141,8 @@ module Fluent
           return {:time => time, :record => record} if test
         end
       end
+    rescue => ex
+      $log.error "snmpwalk failed", :error=>ex.message
     end
 
     # SNMPで取得したデータの型チェック
