@@ -44,7 +44,7 @@ Or install it yourself as:
 
 
      2012-11-08 16:07:40 +0900 snmp.server1: {"name":"HOST-RESOURCES-MIB::hrStorageUsed.31","value":"2352425"}         
-     2012-11-08 16:07:40 +0900 snmp.server2: {"value":"[name=HOST-RESOURCES-MIB::hrStorageIndex.7, value=7 (INTEGER)]"}  
+     2012-11-08 16:07:45 +0900 snmp.server2: {"value":"[name=HOST-RESOURCES-MIB::hrStorageIndex.7, value=7 (INTEGER)]"}  
 
 
 ## Copyright
