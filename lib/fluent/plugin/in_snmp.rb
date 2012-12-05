@@ -153,7 +153,7 @@ module Fluent
         return value.to_s
       end
     rescue => ex
-      $Log.error "snmp failed to check_type", :error=>ex.message
+      $log.error "snmp failed to check_type", :error=>ex.message
       $log.warn_backtrace ex.backtrace
     end
 
