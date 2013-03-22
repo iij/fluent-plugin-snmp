@@ -15,7 +15,7 @@ class SnmpInputTest < Test::Unit::TestCase
     nodes name, value
     polling_time 0,10,20,30,40,50
     host localhost
-    community private
+    community public
     mib_modules HOST-RESOURCES-MIB, IF-MIB
     retries 0
     timeout 3s
@@ -38,7 +38,7 @@ class SnmpInputTest < Test::Unit::TestCase
     assert_equal "localhost", d.instance.host
     assert_nil d.instance.port
     assert_nil d.instance.trap_port
-    assert_equal "private", d.instance.community
+    assert_equal "public", d.instance.community
     assert_nil d.instance.write_community
     assert_equal :SNMPv2c, d.instance.version
     assert_equal 3, d.instance.timeout

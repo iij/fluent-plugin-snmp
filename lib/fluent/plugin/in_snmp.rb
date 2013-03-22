@@ -12,6 +12,7 @@ module Fluent
     config_param :nodes, :string, :default => nil 
     config_param :polling_time, :string, :default => nil
     config_param :host_name, :string, :default => nil
+    config_param :parser, :string, :default => nil
 
     # SNMP Lib Params
     # require param: host, community
@@ -84,6 +85,13 @@ module Fluent
       }
 
       @retry_conut = 0
+
+      unless @parser.nil?
+        @parse = lambda do |opts|
+          require @parser
+          Fluent::SnmpInput.new.parser opts
+        end
+      end
     end
 
     def starter
@@ -130,15 +138,19 @@ module Fluent
       manager.walk(mib) do |row|
         time = Engine.now 
         time = time - time % 5
-        record = Hash.new
-        row.each do |vb|
-          if nodes.nil?
-            record["value"] = vb
-          else
-            nodes.each{|param| record[param] = check_type(vb.__send__(param))}
+        record = {}
+        if @parser.nil?
+          row.each do |vb|
+            if nodes.nil?
+              record["value"] = vb
+            else
+              nodes.each{|param| record[param] = check_type(vb.__send__(param))}
+            end
+            Engine.emit(@tag, time, record)
+            return {:time => time, :record => record} if test
           end
-          Engine.emit(@tag, time, record)
-          return {:time => time, :record => record} if test
+        else
+          @parse.call(input: row, tag: @tag, time: time)
         end
       end
     rescue => ex
