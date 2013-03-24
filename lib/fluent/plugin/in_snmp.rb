@@ -13,6 +13,8 @@ module Fluent
     config_param :polling_time, :string, :default => nil
     config_param :host_name, :string, :default => nil
     config_param :parser, :string, :default => nil
+    config_param :retry, :integer, :default => 5
+    config_param :retry_interval, :integer, :default => 1
 
     # SNMP Lib Params
     # require param: host, community
@@ -118,12 +120,9 @@ module Fluent
       exit
     rescue => ex
       $log.error "run failed", :error=>ex.message
-      sleep(10)
-      @retry_conut += 1
-      retry if @retry_conut < 30
+      shutdown
     end
 
-    #Ctrl-cで処理を停止時に呼ばれる
     def shutdown
       @end_flag = true
       @thread.run
@@ -154,10 +153,13 @@ module Fluent
         end
       end
     rescue => ex
-      $log.error "snmpwalk failed", :error=>ex.message
+      $log.error "snmpwalk failed", :error=>ex.inspect
+      sleep @retry_interval
+      @retry_count += 1
+      @retry_count <= @retry ?  retry : raise(ex.inspect)
     end
 
-    # SNMPで取得したデータの型チェック
+    # data check from snmp
     def check_type(value)
       if value =~ /^\d+(\.\d+)?$/ 
         return value.to_f
