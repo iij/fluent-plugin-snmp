@@ -41,7 +41,7 @@ module Fluent
     config_param :write_community, :string, :default => nil
     config_param :version, :string, :default => nil # Use :SNMPv1 or :SNMPv2c
     config_param :timeout, :time, :default => nil
-    config_param :retries, :integer, :default => nil
+    config_param :retries, :integer, :default => 0
     config_param :transport, :string, :default => nil
     config_param :max_recv_bytes, :string, :default => nil
     config_param :mib_dir, :string, :default => nil
@@ -119,11 +119,13 @@ module Fluent
       $log.error "run TypeError", :error=>ex.message
       exit
     rescue => ex
-      $log.error "run failed", :error=>ex.message
+      $log.error "run failed", :error=>ex.inspect
+      $log.warn_backtrace ex.backtrace
       shutdown
     end
 
     def shutdown
+      super
       @end_flag = true
       @thread.run
       @thread.join
@@ -156,7 +158,7 @@ module Fluent
       $log.error "snmpwalk failed", :error=>ex.inspect
       sleep @retry_interval
       @retry_count += 1
-      @retry_count <= @retry ?  retry : raise(ex.inspect)
+      @retry_count <= @retry ?  retry : raise("retry:#{@retry_count},#{ex.inspect}")
     end
 
     # data check from snmp

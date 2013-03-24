@@ -17,7 +17,7 @@ class SnmpInputTest < Test::Unit::TestCase
     host localhost
     community public
     mib_modules HOST-RESOURCES-MIB, IF-MIB
-    retries 0
+    retry 0
     timeout 3s
   ]
 
@@ -42,7 +42,7 @@ class SnmpInputTest < Test::Unit::TestCase
     assert_nil d.instance.write_community
     assert_equal :SNMPv2c, d.instance.version
     assert_equal 3, d.instance.timeout
-    assert_equal 0, d.instance.retries
+    assert_equal 0, d.instance.retry
     assert_nil d.instance.transport
     assert_nil d.instance.max_recv_bytes
     assert_nil d.instance.mib_dir
@@ -57,6 +57,12 @@ class SnmpInputTest < Test::Unit::TestCase
     assert_equal "sensorValue_%RH", @obj.__send__(:check_type,"sensorValue_%RH")
     assert_equal 12.00, @obj.__send__(:check_type,"12")
     assert_equal 12.34, @obj.__send__(:check_type,"12.34")
+    assert_equal String, @obj.__send__(:check_type,"test").class
+    assert_equal String, @obj.__send__(:check_type,"utrh0").class
+    assert_equal String, @obj.__send__(:check_type,"sensorValue_degC").class
+    assert_equal String, @obj.__send__(:check_type,"sensorValue_%RH").class
+    assert_equal Float, @obj.__send__(:check_type,"12").class
+    assert_equal Float, @obj.__send__(:check_type,"12.34").class
   end
 
   def test_snmpwalk
@@ -84,5 +90,4 @@ class SnmpInputTest < Test::Unit::TestCase
     assert_equal "HOST-RESOURCES-MIB::hrStorageIndex.1", record["name"]
     assert_equal "1", record["value"]
   end
-
 end
