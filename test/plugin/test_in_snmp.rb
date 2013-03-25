@@ -15,10 +15,14 @@ class SnmpInputTest < Test::Unit::TestCase
     nodes name, value
     polling_time 0,10,20,30,40,50
     host localhost
+    host_name test_host
     community public
     mib_modules HOST-RESOURCES-MIB, IF-MIB
     retry 0
+    retry_interval 2
     timeout 3s
+    method_type walk
+    out_exec_filter sample/out_exec.rb
   ]
 
   def create_driver(conf=CONFIG)
@@ -33,9 +37,13 @@ class SnmpInputTest < Test::Unit::TestCase
     assert_equal ["hrStorageIndex","hrStorageDescr","hrStorageSize","hrStorageUsed"], d.instance.mib
     assert_equal ["name","value"], d.instance.nodes
     assert_equal ["0","10","20","30","40","50"], d.instance.polling_time
+    assert_equal "walk", d.instance.method_type
+    assert_equal 2, d.instance.retry_interval
+    assert_equal "sample/out_exec.rb", d.instance.out_exec_filter
 
     # SNMP Lib Params
     assert_equal "localhost", d.instance.host
+    assert_equal "test_host", d.instance.host_name
     assert_nil d.instance.port
     assert_nil d.instance.trap_port
     assert_equal "public", d.instance.community
@@ -65,7 +73,7 @@ class SnmpInputTest < Test::Unit::TestCase
     assert_equal Float, @obj.__send__(:check_type,"12.34").class
   end
 
-  def test_snmpwalk
+  def test_snmp_walk
     d = create_driver
     nodes = d.instance.nodes
     mib = d.instance.mib
@@ -83,11 +91,71 @@ class SnmpInputTest < Test::Unit::TestCase
     Time.stubs(:now).returns(Time.parse "2012/12/31 23:59:50")
     manager = SNMP::Manager.new(snmp_init_params)
 
-    data = @obj.__send__(:snmpwalk, manager, mib, nodes, true)
+    data = @obj.__send__(:snmp_walk, manager, mib, nodes, true)
     record = data[:record]
 
     assert_equal 1356965990, data[:time]
-    assert_equal "HOST-RESOURCES-MIB::hrStorageIndex.1", record["name"]
-    assert_equal "1", record["value"]
+    assert_equal "HOST-RESOURCES-MIB::hrStorageIndex.31", record["name"]
+    assert_equal "31", record["value"]
+  end
+
+
+  def test_snmp_get
+    d = create_driver %[
+      tag snmp.server1
+      mib hrStorageIndex.31
+      nodes name, value
+      polling_time 0,10,20,30,40,50
+      host localhost
+      community public
+      mib_modules HOST-RESOURCES-MIB
+    ]
+    nodes = d.instance.nodes
+    mib = d.instance.mib
+
+    snmp_init_params = {
+      :host => d.instance.host,
+      :community => d.instance.community,
+      :timeout => d.instance.timeout,
+      :retries => d.instance.retries,
+      :mib_dir => d.instance.mib_dir,
+      :mib_modules => d.instance.mib_modules,
+    }
+
+    # unixtime 1356965990
+    Time.stubs(:now).returns(Time.parse "2012/12/31 23:59:50")
+    manager = SNMP::Manager.new(snmp_init_params)
+
+    data = @obj.__send__(:snmp_get, manager, mib, nodes, true)
+    record = data[:record]
+
+    assert_equal 1356965990, data[:time]
+    assert_equal "HOST-RESOURCES-MIB::hrStorageIndex.31", record["name"]
+    assert_equal "31", record["value"]
+  end
+
+  def test_exec_snmp
+    d = create_driver
+    snmp_init_params = {
+      :host => d.instance.host,
+      :community => d.instance.community,
+      :timeout => d.instance.timeout,
+      :retries => d.instance.retries,
+      :mib_dir => d.instance.mib_dir,
+      :mib_modules => d.instance.mib_modules,
+    }
+
+    manager = SNMP::Manager.new(snmp_init_params)
+
+    opts = {
+      :manager => manager,
+      :method_type => d.instance.method_type,
+      :mib => d.instance.mib,
+      :nodes => d.instance.nodes,
+      :test => true
+    }
+
+    exec = @obj.__send__(:exec_snmp, opts)
+    assert_equal 0, exec
   end
 end

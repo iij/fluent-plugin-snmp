@@ -12,9 +12,10 @@ module Fluent
     config_param :nodes, :string, :default => nil 
     config_param :polling_time, :string, :default => nil
     config_param :host_name, :string, :default => nil
-    config_param :parser, :string, :default => nil
     config_param :retry, :integer, :default => 5
-    config_param :retry_interval, :integer, :default => 1
+    config_param :retry_interval, :time, :default => 1
+    config_param :method_type, :string, :default => "walk"
+    config_param :out_exec_filter, :string, :default => nil
 
     # SNMP Lib Params
     # require param: host, community
@@ -86,12 +87,17 @@ module Fluent
         :use_IPv6        => @use_IPv6
       }
 
-      @retry_conut = 0
-
-      unless @parser.nil?
-        @parse = lambda do |opts|
-          require @parser
-          Fluent::SnmpInput.new.parser opts
+      unless @out_exec_filter.nil?
+        @out_exec = lambda do |manager|
+          require @out_exec_filter
+          opts = {
+            :tag         => @tag,
+            :mib         => @mib,
+            :mib_modules => @mib_modules,
+            :nodes       => @nodes,
+            :conf        => conf
+          }
+          Fluent::SnmpInput.new.out_exec(manager, opts)
         end
       end
     end
@@ -112,53 +118,98 @@ module Fluent
 
     def run
       Polling::run(@polling_time) do
-        snmpwalk(@manager, @mib, @nodes)
         break if @end_flag
+        exec_params = {
+          manager: @manager,
+          mib: @mib,
+          nodes: @nodes,
+          method_type: @method_type
+        }
+        exec_snmp(exec_params)
       end
     rescue TypeError => ex
       $log.error "run TypeError", :error=>ex.message
-      exit
     rescue => ex
-      $log.error "run failed", :error=>ex.inspect
-      $log.warn_backtrace ex.backtrace
-      shutdown
+      $log.fatal "run failed", :error=>ex.inspect
+      $log.fatal_backtrace ex.backtrace
+      exit
     end
 
     def shutdown
-      super
       @end_flag = true
       @thread.run
       @thread.join
       @starter.join
       @manager.close 
+      super
+    end
+
+    def exec_snmp opts={}
+      @retry_count ||= 0
+      if @out_exec_filter.nil?
+        case opts[:method_type]
+        when /^walk$/
+          snmp_walk(opts[:manager], opts[:mib], opts[:nodes])
+        when /^get$/
+          snmp_get(opts[:manager], opts[:mib], opts[:nodes])
+        else
+          $log.error "unknow exec method"
+          raise
+        end
+      else
+        @out_exec.call opts[:manager]
+      end
+      @retry_count = 0
+    rescue SNMP::RequestTimeout => ex
+      $log.error "exec_snmp failed", :error=>ex.inspect
+      @retry_count += 1
+      if @retry_count <= @retry
+        sleep @retry_interval
+        $log.error "retry: #{@retry_count}"
+        retry
+      else
+        raise ex
+      end
+    rescue => ex
+      raise ex
     end
 
     private
 
-    def snmpwalk(manager, mib, nodes, test=false)
+    def snmp_walk(manager, mib, nodes, test=false)
       manager.walk(mib) do |row|
         time = Engine.now 
         time = time - time % 5
         record = {}
-        if @parser.nil?
-          row.each do |vb|
-            if nodes.nil?
-              record["value"] = vb
-            else
-              nodes.each{|param| record[param] = check_type(vb.__send__(param))}
-            end
-            Engine.emit(@tag, time, record)
-            return {:time => time, :record => record} if test
+        row.each do |vb|
+          if nodes.nil?
+            record["value"] = vb
+          else
+            nodes.each{|param| record[param] = check_type(vb.__send__(param))}
           end
-        else
-          @parse.call(input: row, tag: @tag, time: time)
+          Engine.emit(@tag, time, record)
+          return {:time => time, :record => record} if test
         end
       end
     rescue => ex
-      $log.error "snmpwalk failed", :error=>ex.inspect
-      sleep @retry_interval
-      @retry_count += 1
-      @retry_count <= @retry ?  retry : raise("retry:#{@retry_count},#{ex.inspect}")
+      raise ex
+    end
+
+    def snmp_get(manager, mib, nodes, test=false)
+      manager.get(mib).each_varbind do |vb|
+        time = Engine.now
+        time = time - time % 5
+        record = {}
+        if nodes.nil?
+          record["value"] = vb
+        else
+          nodes.each{|param| record[param] = check_type(vb.__send__(param))}
+        end
+        Engine.emit(@tag, time, record)
+        return {:time => time, :record => record} if test
+      end
+    rescue => ex
+      raise ex
     end
 
     # data check from snmp
@@ -172,6 +223,5 @@ module Fluent
       $log.error "snmp failed to check_type", :error=>ex.message
       $log.warn_backtrace ex.backtrace
     end
-
   end
 end

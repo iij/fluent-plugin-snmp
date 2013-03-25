@@ -1,0 +1,17 @@
+module Fluent
+  class SnmpInput
+    def out_exec manager, opts={}
+      manager.walk(opts[:mib]) do |row|
+        time = Time.now.to_i
+        time = time - time  % 5
+        record = {}
+        row.each do |vb|
+          record["name"] = vb.name.to_s
+          record["value"] = vb.value.to_s
+          Engine.emit opts[:tag], time, record
+        end
+      end
+    end
+  end
+end
+
