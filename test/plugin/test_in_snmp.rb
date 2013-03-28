@@ -14,6 +14,7 @@ class SnmpInputTest < Test::Unit::TestCase
     mib hrStorageIndex, hrStorageDescr, hrStorageSize, hrStorageUsed
     nodes name, value
     polling_time 0,10,20,30,40,50
+    polling_offset 0
     host localhost
     host_name test_host
     community public
@@ -37,6 +38,7 @@ class SnmpInputTest < Test::Unit::TestCase
     assert_equal ["hrStorageIndex","hrStorageDescr","hrStorageSize","hrStorageUsed"], d.instance.mib
     assert_equal ["name","value"], d.instance.nodes
     assert_equal ["0","10","20","30","40","50"], d.instance.polling_time
+    assert_equal 0, d.instance.polling_offset
     assert_equal "walk", d.instance.method_type
     assert_equal 2, d.instance.retry_interval
     assert_equal "sample/out_exec.rb", d.instance.out_exec_filter

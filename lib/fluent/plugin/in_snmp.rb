@@ -11,6 +11,7 @@ module Fluent
     config_param :mib, :string
     config_param :nodes, :string, :default => nil 
     config_param :polling_time, :string, :default => nil
+    config_param :polling_offset, :time, :default => 0
     config_param :host_name, :string, :default => nil
     config_param :retry, :integer, :default => 5
     config_param :retry_interval, :time, :default => 1
@@ -89,7 +90,7 @@ module Fluent
 
       unless @out_exec_filter.nil?
         @out_exec = lambda do |manager|
-          require @out_exec_filter
+          load @out_exec_filter
           opts = {
             :tag         => @tag,
             :mib         => @mib,
@@ -117,6 +118,7 @@ module Fluent
     end
 
     def run
+      Polling.setting offset: @polling_offset
       Polling::run(@polling_time) do
         break if @end_flag
         exec_params = {
@@ -137,11 +139,18 @@ module Fluent
 
     def shutdown
       @end_flag = true
-      @thread.run
-      @thread.join
-      @starter.join
-      @manager.close 
-      super
+      if @thread 
+        @thread.run
+        @thread.join
+        @thread = nil
+      end
+      if @starter
+        @starter.join 
+        @starter = nil
+      end
+      if @manager
+        @manager.close 
+      end
     end
 
     def exec_snmp opts={}
