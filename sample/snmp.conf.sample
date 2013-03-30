@@ -1,42 +1,24 @@
 <source>
-type snmp
-tag snmp.server1
-nodes name, value
-host localhost
-community public
-version 2c
-mib hrStorageIndex, hrStorageDescr, hrStorageSize, hrStorageUsed
-mib_modules HOST-RESOURCES-MIB
-retries 0
-timeout 3s
-polling_time 0,10,20,30,40,50
+  type snmp
+  tag snmp.server1
+  nodes name, value
+  host localhost
+  community public
+  mib hrStorageIndex, hrStorageDescr, hrStorageSize, hrStorageUsed
+  mib_modules HOST-RESOURCES-MIB
+  polling_time 0,10,20,30,40,50
 </source>
 
-#<source>
-#type snmp
-#tag snmp.server2
-#host localhost
-#community public
-#version 2c
-#mib hrStorageIndex, hrStorageDescr, hrStorageSize, hrStorageUsed
-#mib_modules HOST-RESOURCES-MIB
-#retries 0
-#timeout 3s
-#polling_time 5,15,25,35,45,55
-#</source>
-#
-#<source>
-#type snmp
-#tag snmp.server3
-#host localhost
-#community public
-#version 2c
-#mib hrStorageIndex, hrStorageDescr, hrStorageSize, hrStorageUsed
-#mib_modules HOST-RESOURCES-MIB
-#retries 0
-#timeout 3s
-#polling_time 5m
-#</source>
+<source>
+  type snmp
+  tag snmp.server2
+  host localhost
+  community public
+  mib hrStorageIndex, hrStorageDescr, hrStorageSize, hrStorageUsed
+  mib_modules HOST-RESOURCES-MIB
+  polling_time 0,10,20,30,40,50
+  out_executor sample/out_exec.rb.sample
+</source>
 
 <match snmp.server*>
   type stdout
