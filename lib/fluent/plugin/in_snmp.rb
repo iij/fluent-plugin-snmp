@@ -16,7 +16,7 @@ module Fluent
     config_param :retry, :integer, :default => 5
     config_param :retry_interval, :time, :default => 1
     config_param :method_type, :string, :default => "walk"
-    config_param :out_exec_filter, :string, :default => nil
+    config_param :out_executor, :string, :default => nil
 
     # SNMP Lib Params
     # require param: host, community
@@ -88,9 +88,9 @@ module Fluent
         :use_IPv6        => @use_IPv6
       }
 
-      unless @out_exec_filter.nil?
+      unless @out_executor.nil?
         @out_exec = lambda do |manager|
-          load @out_exec_filter
+          load @out_executor
           opts = {
             :tag         => @tag,
             :mib         => @mib,
@@ -153,9 +153,11 @@ module Fluent
       end
     end
 
+    private
+
     def exec_snmp opts={}
       @retry_count ||= 0
-      if @out_exec_filter.nil?
+      if @out_executor.nil?
         case opts[:method_type]
         when /^walk$/
           snmp_walk(opts[:manager], opts[:mib], opts[:nodes])
@@ -182,8 +184,6 @@ module Fluent
     rescue => ex
       raise ex
     end
-
-    private
 
     def snmp_walk(manager, mib, nodes, test=false)
       manager.walk(mib) do |row|

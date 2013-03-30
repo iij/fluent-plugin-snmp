@@ -23,7 +23,7 @@ class SnmpInputTest < Test::Unit::TestCase
     retry_interval 2
     timeout 3s
     method_type walk
-    out_exec_filter sample/out_exec.rb
+    out_executor sample/out_exec.rb.sample
   ]
 
   def create_driver(conf=CONFIG)
@@ -41,7 +41,7 @@ class SnmpInputTest < Test::Unit::TestCase
     assert_equal 0, d.instance.polling_offset
     assert_equal "walk", d.instance.method_type
     assert_equal 2, d.instance.retry_interval
-    assert_equal "sample/out_exec.rb", d.instance.out_exec_filter
+    assert_equal "sample/out_exec.rb.sample", d.instance.out_executor
 
     # SNMP Lib Params
     assert_equal "localhost", d.instance.host
