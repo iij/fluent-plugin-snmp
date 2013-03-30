@@ -89,6 +89,7 @@ module Fluent
       }
 
       unless @out_executor.nil?
+        $log.info "load snmp out executor #{out_executor}"
         @out_exec = lambda do |manager|
           load @out_executor
           opts = {
