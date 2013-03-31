@@ -12,10 +12,11 @@ module Fluent
     config_param :nodes, :string, :default => nil 
     config_param :polling_time, :string, :default => nil
     config_param :polling_offset, :time, :default => 0
+    config_param :polling_type, :string, :default => "run" #or async_run
     config_param :host_name, :string, :default => nil
     config_param :retry, :integer, :default => 5
     config_param :retry_interval, :time, :default => 1
-    config_param :method_type, :string, :default => "walk"
+    config_param :method_type, :string, :default => "walk" #or get
     config_param :out_executor, :string, :default => nil
 
     # SNMP Lib Params
@@ -53,7 +54,8 @@ module Fluent
     def configure(conf)                                                         
       super
 
-      raise ConfigError, "tag is required param" if @tag.empty?
+      raise ConfigError, "snmp: 'tag' is required param" if @tag.empty?
+      raise ConfigError, "snmp: 'polling_type' parameter is required on snmp input" if @polling_type.empty?
 
       # @mib, @mib_modules, @nodesを配列に変換
       @mib = @mib.split(',').map{|str| str.strip} 
@@ -120,7 +122,7 @@ module Fluent
 
     def run
       Polling.setting offset: @polling_offset
-      Polling::run(@polling_time) do
+      Polling.__send__(@polling_type, @polling_time) do
         break if @end_flag
         exec_params = {
           manager: @manager,

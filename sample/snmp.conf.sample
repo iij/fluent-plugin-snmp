@@ -4,9 +4,10 @@
   nodes name, value
   host localhost
   community public
-  mib hrStorageIndex, hrStorageDescr, hrStorageSize, hrStorageUsed
-  mib_modules HOST-RESOURCES-MIB
-  polling_time 0,10,20,30,40,50
+  mib sysContact.0, sysDescr.0, sysName.0
+  method_type get
+  polling_time 5
+  polling_type async_run
 </source>
 
 <source>
