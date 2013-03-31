@@ -14,38 +14,32 @@ Or install it yourself as:
 
 ## Usage
 
-    <source>                                                          
-      type snmp                                                         
-      tag snmp.server1                                                  
-      nodes name, value                                                 
-      host server1                                                    
-      community private                                                 
-      version 2c                                                        
-      mib hrStorageIndex, hrStorageDescr, hrStorageSize, hrStorageUsed  
-      mib_modules HOST-RESOURCES-MIB                                    
-      retries 0                                                         
-      timeout 3s                                                        
-      polling_time 0,10,20,30,40,50                                     
-    </source>                                                         
-
-    <source>                                                          
-      type snmp                                                         
-      tag snmp.server2                                                  
-      host server2                                                    
-      community private                                                 
-      version 2c                                                        
-      mib hrStorageIndex, hrStorageDescr,
-      hrStorageSize, hrStorageUsed  
-      mib_modules HOST-RESOURCES-MIB                                    
-      retries 0                                                         
-      timeout 3s                                                        
-      polling_time 5,15,25,35,45,55                                     
-    </source>                                                         
-
-
-     2012-11-08 16:07:40 +0900 snmp.server1: {"name":"HOST-RESOURCES-MIB::hrStorageUsed.31","value":"2352425"}         
-     2012-11-08 16:07:45 +0900 snmp.server2: {"value":"[name=HOST-RESOURCES-MIB::hrStorageIndex.7, value=7 (INTEGER)]"}  
-
+    <source>
+      type snmp
+      tag snmp.server1
+      nodes name, value
+      host localhost
+      community public
+      mib sysContact.0, sysDescr.0, sysName.0
+      method_type get
+      polling_time 5
+      polling_type async_run
+    </source>
+    
+    <source>
+      type snmp
+      tag snmp.server2
+      host localhost
+      community public
+      mib hrStorageIndex, hrStorageDescr, hrStorageSize, hrStorageUsed
+      mib_modules HOST-RESOURCES-MIB
+      polling_time 0,10,20,30,40,50
+      out_executor sample/out_exec.rb.sample
+    </source>
+    
+    <match snmp.server*>
+      type stdout
+    </match>
 
 ## Copyright
 Copyright (c) 2012 Internet Initiative Inc.
