@@ -119,7 +119,7 @@ module Fluent
     end
 
     def run
-      Polling.setting offset: @polling_offset, debug: true
+      Polling.setting offset: @polling_offset
       Polling.__send__(@polling_type, @polling_time) do
         break if @end_flag
         exec_snmp(manager: @manager, mib: @mib, nodes: @nodes, method_type: @method_type)
