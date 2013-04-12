@@ -14,8 +14,6 @@ module Fluent
     config_param :polling_offset, :time, :default => 0
     config_param :polling_type, :string, :default => "run" #or async_run
     config_param :host_name, :string, :default => nil
-    config_param :retry, :integer, :default => 5
-    config_param :retry_interval, :time, :default => 1
     config_param :method_type, :string, :default => "walk" #or get
     config_param :out_executor, :string, :default => nil
 
@@ -44,7 +42,7 @@ module Fluent
     config_param :write_community, :string, :default => nil
     config_param :version, :string, :default => nil # Use :SNMPv1 or :SNMPv2c
     config_param :timeout, :time, :default => nil
-    config_param :retries, :integer, :default => 0
+    config_param :retries, :integer, :default => nil
     config_param :transport, :string, :default => nil
     config_param :max_recv_bytes, :string, :default => nil
     config_param :mib_dir, :string, :default => nil
@@ -121,22 +119,17 @@ module Fluent
     end
 
     def run
-      Polling.setting offset: @polling_offset
+      Polling.setting offset: @polling_offset, debug: true
       Polling.__send__(@polling_type, @polling_time) do
         break if @end_flag
-        exec_params = {
-          manager: @manager,
-          mib: @mib,
-          nodes: @nodes,
-          method_type: @method_type
-        }
-        exec_snmp(exec_params)
+        exec_snmp(manager: @manager, mib: @mib, nodes: @nodes, method_type: @method_type)
       end
     rescue TypeError => ex
       $log.error "run TypeError", :error=>ex.message
+      exit
     rescue => ex
       $log.fatal "run failed", :error=>ex.inspect
-      $log.fatal_backtrace ex.backtrace
+      $log.error_backtrace ex.backtrace
       exit
     end
 
@@ -159,7 +152,6 @@ module Fluent
     private
 
     def exec_snmp opts={}
-      @retry_count ||= 0
       if @out_executor.nil?
         case opts[:method_type]
         when /^walk$/
@@ -173,18 +165,11 @@ module Fluent
       else
         @out_exec.call opts[:manager]
       end
-      @retry_count = 0
     rescue SNMP::RequestTimeout => ex
-      $log.error "exec_snmp failed", :error=>ex.inspect
-      @retry_count += 1
-      if @retry_count <= @retry
-        sleep @retry_interval
-        $log.error "retry: #{@retry_count}"
-        retry
-      else
-        raise ex
-      end
+      $log.error "exec_snmp failed #{@tag}", :error=>ex.inspect
     rescue => ex
+      $log.error "exec_snmp failed #{@tag}", :error=>ex.inspect
+      $log.error_backtrace ex.backtrace
       raise ex
     end
 
