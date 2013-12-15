@@ -16,7 +16,6 @@ class SnmpInputTest < Test::Unit::TestCase
     polling_time 0,10,20,30,40,50
     polling_offset 0
     host localhost
-    host_name test_host
     community public
     mib_modules HOST-RESOURCES-MIB, IF-MIB
     retry 0
@@ -45,7 +44,6 @@ class SnmpInputTest < Test::Unit::TestCase
 
     # SNMP Lib Params
     assert_equal "localhost", d.instance.host
-    assert_equal "test_host", d.instance.host_name
     assert_nil d.instance.port
     assert_nil d.instance.trap_port
     assert_equal "public", d.instance.community
