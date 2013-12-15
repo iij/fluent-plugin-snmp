@@ -152,6 +152,6 @@ class SnmpInputTest < Test::Unit::TestCase
     }
 
     exec = @obj.__send__(:exec_snmp, opts)
-    assert_equal 0, exec
+    assert_equal nil, exec
   end
 end
