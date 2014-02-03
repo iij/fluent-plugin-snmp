@@ -91,8 +91,8 @@ class SnmpInputTest < Test::Unit::TestCase
     record = data[:record]
 
     assert_equal 1356965990, data[:time]
-    assert_equal "HOST-RESOURCES-MIB::hrStorageIndex.31", record["name"]
-    assert_equal "31", record["value"]
+    assert_equal "HOST-RESOURCES-MIB::hrStorageIndex.1", record["name"]
+    assert_equal "1", record["value"]
   end
 
 
