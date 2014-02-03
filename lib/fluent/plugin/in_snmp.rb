@@ -13,7 +13,6 @@ module Fluent
     config_param :polling_time, :string, :default => nil
     config_param :polling_offset, :time, :default => 0
     config_param :polling_type, :string, :default => "run" #or async_run
-    config_param :host_name, :string, :default => nil
     config_param :method_type, :string, :default => "walk" #or get
     config_param :out_executor, :string, :default => nil
 
