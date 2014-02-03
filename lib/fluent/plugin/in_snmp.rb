@@ -103,18 +103,10 @@ module Fluent
       end
     end
 
-    def starter
-      @starter = Thread.new do
-        yield
-      end
-    end
-
     def start
-      starter do
-        @manager = SNMP::Manager.new(@snmp_init_params)
-        @thread = Thread.new(&method(:run))
-        @end_flag = false
-      end
+      @manager = SNMP::Manager.new(@snmp_init_params)
+      @thread = Thread.new(&method(:run))
+      @end_flag = false
     end
 
     def run
@@ -138,10 +130,6 @@ module Fluent
         @thread.run
         @thread.join
         @thread = nil
-      end
-      if @starter
-        @starter.join 
-        @starter = nil
       end
       if @manager
         @manager.close 
