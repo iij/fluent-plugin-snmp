@@ -17,6 +17,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "fluentd"
   gem.add_development_dependency "snmp"
   gem.add_development_dependency "polling"
+  gem.add_development_dependency "rake"
+
   gem.add_runtime_dependency "fluentd"
   gem.add_runtime_dependency "snmp"
   gem.add_runtime_dependency "polling"
