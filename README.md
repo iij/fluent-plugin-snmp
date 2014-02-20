@@ -1,4 +1,4 @@
-# Fluent::Plugin::Snmp
+# Fluent::Plugin::Snmp, a plugin for [Fluentd](http://fluentd.org)
 
 Fluentd snmp input plugin
 
