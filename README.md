@@ -2,15 +2,23 @@
 
 Fluentd snmp input plugin
 
-## Installation
+## Installation possibilities
 
-Add this line to your application's Gemfile:
+- With your application's Gemfile:
 
-    gem 'fluent-plugin-snmp'
+    `gem 'fluent-plugin-snmp'`
 
-Or install it yourself as:
+- Install it yourself as:
 
-    $ gem install fluent-plugin-snmp
+    `$ gem install fluent-plugin-snmp`
+
+- Intall with td-agent:
+
+    `$ td-agent-gem install fluent-plugin-snmp`
+
+- If you are using vanilla Fluentd:
+
+    `$ fluent-gem install fluent-plugin-snmp`
 
 ## Usage
 
