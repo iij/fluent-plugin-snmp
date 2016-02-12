@@ -200,6 +200,8 @@ module Fluent
     def check_type(value)
       if value =~ /^\d+(\.\d+)?$/ 
         return value.to_f
+      elsif SNMP::Integer === value
+        return value.to_i
       else
         return value.to_s
       end
