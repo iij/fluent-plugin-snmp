@@ -171,7 +171,7 @@ module Fluent
           else
             nodes.each{|param| record[param] = check_type(vb.__send__(param))}
           end
-          Engine.emit(@tag, time, record)
+          router.emit(@tag, time, record)
           return {:time => time, :record => record} if test
         end
       end
@@ -189,7 +189,7 @@ module Fluent
         else
           nodes.each{|param| record[param] = check_type(vb.__send__(param))}
         end
-        Engine.emit(@tag, time, record)
+        router.emit(@tag, time, record)
         return {:time => time, :record => record} if test
       end
     rescue => ex
