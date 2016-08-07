@@ -1,3 +1,4 @@
+require 'fluent/input'
 require 'snmp' # http://snmplib.rubyforge.org/doc/index.html
 require 'polling'
 
@@ -98,12 +99,13 @@ module Fluent
             :nodes       => @nodes,
             :conf        => conf
           }
-          Fluent::SnmpInput.new.out_exec(manager, opts)
+          out_exec(manager, opts)
         end
       end
     end
 
     def start
+      super
       @manager = SNMP::Manager.new(@snmp_init_params)
       @thread = Thread.new(&method(:run))
       @end_flag = false
