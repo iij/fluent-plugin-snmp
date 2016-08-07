@@ -8,7 +8,7 @@ module Fluent
         row.each do |vb|
           record["name"] = vb.name.to_s
           record["value"] = vb.value.to_s
-          Engine.emit opts[:tag], time, record
+          router.emit opts[:tag], time, record
         end
       end
     end

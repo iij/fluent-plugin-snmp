@@ -6,7 +6,7 @@ class SnmpInputTest < Test::Unit::TestCase
 
   def setup
     Fluent::Test.setup
-    @obj = Fluent::SnmpInput.new
+    #@obj = Fluent::SnmpInput.new
   end
 
   CONFIG = %[
@@ -55,18 +55,22 @@ class SnmpInputTest < Test::Unit::TestCase
   end
 
   def test_check_type
-    assert_equal "test", @obj.__send__(:check_type,"test")
-    assert_equal "utrh0", @obj.__send__(:check_type,"utrh0")
-    assert_equal "sensorValue_degC", @obj.__send__(:check_type,"sensorValue_degC")
-    assert_equal "sensorValue_%RH", @obj.__send__(:check_type,"sensorValue_%RH")
-    assert_equal 12.00, @obj.__send__(:check_type,"12")
-    assert_equal 12.34, @obj.__send__(:check_type,"12.34")
-    assert_equal String, @obj.__send__(:check_type,"test").class
-    assert_equal String, @obj.__send__(:check_type,"utrh0").class
-    assert_equal String, @obj.__send__(:check_type,"sensorValue_degC").class
-    assert_equal String, @obj.__send__(:check_type,"sensorValue_%RH").class
-    assert_equal Float, @obj.__send__(:check_type,"12").class
-    assert_equal Float, @obj.__send__(:check_type,"12.34").class
+    d = create_driver
+
+    assert_equal "test", d.instance.__send__(:check_type, "test")
+    assert_equal "utrh0", d.instance.__send__(:check_type, "utrh0")
+    assert_equal "sensorValue_degC", d.instance.__send__(:check_type, "sensorValue_degC")
+    assert_equal "sensorValue_%RH", d.instance.__send__(:check_type, "sensorValue_%RH")
+    assert_equal 12.00, d.instance.__send__(:check_type, "12")
+    assert_equal 12.34, d.instance.__send__(:check_type, "12.34")
+    assert_equal 12, d.instance.__send__(:check_type, SNMP::Integer.new("12"))
+    assert_equal String, d.instance.__send__(:check_type, "test").class
+    assert_equal String, d.instance.__send__(:check_type, "utrh0").class
+    assert_equal String, d.instance.__send__(:check_type, "sensorValue_degC").class
+    assert_equal String, d.instance.__send__(:check_type, "sensorValue_%RH").class
+    assert_equal Float, d.instance.__send__(:check_type, "12").class
+    assert_equal Float, d.instance.__send__(:check_type, "12.34").class
+    assert_equal Fixnum, d.instance.__send__(:check_type, SNMP::Integer.new("12")).class
   end
 
   def test_snmp_walk
@@ -87,14 +91,13 @@ class SnmpInputTest < Test::Unit::TestCase
     Time.stubs(:now).returns(Time.parse "2012/12/31 23:59:50")
     manager = SNMP::Manager.new(snmp_init_params)
 
-    data = @obj.__send__(:snmp_walk, manager, mib, nodes, true)
+    data = d.instance.__send__(:snmp_walk, manager, mib, nodes, true)
     record = data[:record]
 
     assert_equal 1356965990, data[:time]
     assert_equal "HOST-RESOURCES-MIB::hrStorageIndex.1", record["name"]
-    assert_equal "1", record["value"]
+    assert_equal 1, record["value"]
   end
-
 
   def test_snmp_get
     d = create_driver %[
@@ -122,12 +125,12 @@ class SnmpInputTest < Test::Unit::TestCase
     Time.stubs(:now).returns(Time.parse "2012/12/31 23:59:50")
     manager = SNMP::Manager.new(snmp_init_params)
 
-    data = @obj.__send__(:snmp_get, manager, mib, nodes, true)
+    data = d.instance.__send__(:snmp_get, manager, mib, nodes, true)
     record = data[:record]
 
     assert_equal 1356965990, data[:time]
     assert_equal "HOST-RESOURCES-MIB::hrStorageIndex.31", record["name"]
-    assert_equal "31", record["value"]
+    assert_equal 31, record["value"]
   end
 
   def test_exec_snmp
@@ -151,7 +154,7 @@ class SnmpInputTest < Test::Unit::TestCase
       :test => true
     }
 
-    exec = @obj.__send__(:exec_snmp, opts)
+    exec = d.instance.__send__(:exec_snmp, opts)
     assert_equal nil, exec
   end
 end

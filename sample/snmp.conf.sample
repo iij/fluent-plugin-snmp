@@ -1,5 +1,5 @@
 <source>
-  type snmp
+  @type snmp
   tag snmp.server1
   nodes name, value
   host localhost
@@ -11,7 +11,7 @@
 </source>
 
 <source>
-  type snmp
+  @type snmp
   tag snmp.server2
   host localhost
   community public
@@ -22,5 +22,5 @@
 </source>
 
 <match snmp.server*>
-  type stdout
+  @type stdout
 </match>
